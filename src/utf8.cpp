@@ -4,7 +4,6 @@
 
 // Includes:
 #include "aura.h"
-#include <stdio.h>
 
 /// Returns the length of a UTF8-encoded string
 /// @param s The string to determine the length of
@@ -65,12 +64,10 @@ LIBAURA_EXPORTED char* utf8ncpy(char* dst, const char* src, size_t num)
 	// See if we're in the middle of a multi-byte character
 	if ((dst[end - src] & 0xc0) == 0x80)
 	{
-		fprintf(stderr, "Landed inside multibyte character.\n");
 		for (size_t i = 1; i < 6; i++)
 		{
 			if ((dst[end - src + i] & 0xc0) != 0x80)
 			{
-				fprintf(stderr, "Copyback, skipping %lu bytes\n", i);
 				// We've reached the start of a new character,
 				// move remainder of string back appropriately,
 				// discarding the broken character

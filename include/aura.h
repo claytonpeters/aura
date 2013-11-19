@@ -19,7 +19,9 @@
 #	endif
 #endif
 
-/// Gets the version of libaura
+/// Gets the version of libaura. The version number is of the following format:
+///   (major * 1000000) + (minor * 1000) + (build)
+/// @returns The version number
 LIBAURA_EXPORTED int getAuraVersion();
 
 // UTF-8 versions of libc string functions /////////////////////////////////////
@@ -76,9 +78,31 @@ typedef enum aura_plugin_type_t
 	/// Type for item transition (e.g. Fade-out/in)
 	AURA_PLUGIN_TYPE_TRANSITION,
 
-	/// Type for item layouts (e.g. single tweet, scrolling tweets, ticker, etc.)
+	/// Type for item layouts (e.g. single tweet, scrolling list, ticker, etc.)
 	AURA_PLUGIN_TYPE_LAYOUT,
 } aura_plugin_type_t;
+
+/// An enumeration defining the valid type for plugin settings
+typedef enum aura_vartype_t
+{
+	/// Integer
+	AURA_VARTYPE_INT = 0,
+
+	/// Boolean
+	AURA_VARTYPE_BOOLEAN,
+
+	/// Floating point
+	AURA_VARTYPE_FLOAT,
+
+	/// Text
+	AURA_VARTYPE_TEXT,
+
+	/// Filename
+	AURA_VARTYPE_FILENAME,
+
+	/// Color
+	AURA_VARTYPE_COLOR,
+} aura_vartype_t;
 
 /// Structure defining the description of a plugin to Aura. When Aura starts and
 /// loads the plugins, one of these structures will be requested from each to
@@ -88,7 +112,7 @@ typedef struct aura_plugin_desc_t
 	/// The name of the plugin (e.g. Twitter, Static Image, Fade in)
 	const char* name;
 
-	/// The name of the autor
+	/// The name of the author
 	const char* author;
 
 	/// The description of the plugin
@@ -100,6 +124,107 @@ typedef struct aura_plugin_desc_t
 	/// The plugin type, see aura_plugin_type_t
 	aura_plugin_type_t type;
 } aura_plugin_desc_t;
+
+/// Structure defining a setting for a plugin
+typedef struct aura_plugin_setting_t
+{
+	/// The name of the setting
+	const char* name;
+
+	/// The description of the settings
+	const char* description;
+
+	/// The setting type
+	aura_vartype_t type;
+
+	/// Whether the setting is currently disabled (possibly dependant on another
+	/// settings value, for example)
+	bool disabled;
+} aura_plugin_setting_t;
+
+/// Structure defining an integer setting
+typedef struct aura_plugin_setting_int_t
+{
+	/// The plugin setting 'superclass' for this setting
+	aura_plugin_setting_t super;
+
+	/// The minimum value for the setting
+	long long minimum;
+
+	/// The maximum value for the setting
+	long long maximum;
+
+	/// The value of the setting
+	long long value;
+} aura_plugin_setting_int_t;
+
+/// Structure defining a floating-point setting
+typedef struct aura_plugin_setting_float_t
+{
+	/// The plugin setting 'superclass' for this setting
+	aura_plugin_setting_t super;
+
+	/// The minimum value for the setting
+	double minimum;
+
+	/// The maximum value for the setting
+	double maximum;
+
+	/// The value of the setting
+	double value;
+} aura_plugin_setting_float_t;
+
+/// Structure defining a boolean setting
+typedef struct aura_plugin_setting_bool_t
+{
+	/// The plugin setting 'superclass' for this setting
+	aura_plugin_setting_t super;
+
+	/// The value of the setting
+	bool value;
+} aura_plugin_setting_bool_t;
+
+/// Structure defining a text setting
+typedef struct aura_plugin_setting_string_t
+{
+	/// The plugin setting 'superclass' for this setting
+	aura_plugin_setting_t super;
+
+	/// Specifies whether the text item is a password
+	bool password;
+
+	/// The value of the setting, UTF-8 encoded
+	char* value;
+} aura_plugin_setting_string_t;
+
+/// Structure defining a filename setting
+typedef struct aura_plugin_setting_file_t
+{
+	/// The plugin setting 'superclass' for this setting
+	aura_plugin_setting_t super;
+
+	/// The value of the setting, UTF-8 encoded
+	char* value;
+} aura_plugin_setting_file_t;
+
+/// Structure defining a color setting
+typedef struct aura_plugin_setting_color_t
+{
+	/// The plugin setting 'superclass' for this setting
+	aura_plugin_setting_t super;
+
+	/// Determines if the alpha component is used
+	bool hasAlpha;
+
+	/// The value of the setting: red component
+	float valueR;
+	/// The value of the setting: gren component
+	float valueG;
+	/// The value of the setting: blue component
+	float valueB;
+	/// The value of the setting: alpha component (if used)
+	float valueA;
+} aura_plugin_setting_color_t;
 
 /// Function pointer to plugin get_description() function
 /// @returns A pointer to an aura_plugin_desc_t structure that describes the
@@ -119,13 +244,31 @@ typedef struct aura_plugin_t
 	/// Pointer to the plugin description structure
 	const aura_plugin_desc_t* description;
 
-	/// Function-pointer to unload plugin
+	/// List of pointers to settings, last in list is NULL 
+	aura_plugin_setting_t** settings;
+
+	/// Function-pointer: Unload plugin
 	aura_plugin_func_unload_t unload;
 } aura_plugin_t;
+
+/// Structure defining an 'element' plugin. An element is any low-level item 
+/// that could appear on the display, e.g. Colour, Gradient, Image, Text, etc.
+typedef struct aura_element_plugin_t
+{
+	/// The plugin 'superclass' for this plugin
+	aura_plugin_t super;
+} aura_element_plugin_t;
 
 /// Function pointer to plugin load() function
 /// @returns A pointer to a filled aura_plugin_t structure
 typedef aura_plugin_t* (*aura_plugin_func_load_t)(void);
- 
+
+/// Allocates a new setting of the given type. The function returns a pointer of
+/// type aura_plugin_setting_t, but this should be casted to the appropriate 
+/// pointer for whatever class of setting was requested, for example,
+/// aura_plugin_setting_int_t
+/// @returns A pointer to the newly allocated setting.
+LIBAURA_EXPORTED aura_plugin_setting_t* aura_allocate_setting(aura_vartype_t type);
+
 #endif // !defined(AURA_H_INCLUDED)
 
