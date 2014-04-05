@@ -1,0 +1,5 @@
+add_library(aura-core-elements SHARED src/aura-core-elements.cpp)
+include_directories("${PROJECT_SOURCE_DIR}/libaura/include")
+include_directories("${PROJECT_SOURCE_DIR}/plugins/aura-core-elements/include")
+add_dependencies(aura-core-elements aura)
+target_link_libraries(aura-core-elements aura)

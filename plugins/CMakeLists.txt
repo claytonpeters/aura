@@ -1,0 +1,5 @@
+add_subdirectory(aura-dlna)
+add_subdirectory(aura-facebook)
+add_subdirectory(aura-instagram)
+add_subdirectory(aura-twitter)
+add_subdirectory(aura-core-elements)

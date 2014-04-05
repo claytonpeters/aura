@@ -20,3 +20,9 @@ Plugin depencies:
  - Instagram:
  - Streaming support:
    - libdlna
+
+Packages to install for Ubuntu:
+ - g++
+ - CMake
+ - libsdl2-dev
+ - libcurl4-openssl-dev

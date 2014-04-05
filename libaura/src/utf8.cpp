@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Clayton Peters
+// Copyright (c) 2014 Clayton Peters
 // This program is distributed under the terms of the GNU Lesser General Public
 // License (LGPL). A copy of the license is included in the file COPYING.LESSER
 
